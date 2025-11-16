@@ -1,0 +1,8 @@
+torch==2.2.0
+torchaudio==2.2.0
+TTS==0.22.0 
+tortoise-tts         
+gpt-sovits
+resemblyzer
+soundfile
+numpy

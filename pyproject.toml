@@ -1,0 +1,13 @@
+[project]
+name = "tts"
+version = "0.1.0"
+description = "Testing some TTS tools to clone voices"
+readme = "README.md"
+requires-python = ">=3.11"
+
+dependencies = [
+    "torch==2.2.0", "torchaudio==2.2.0",
+    "TTS==0.22.0", "tortoise-tts",
+    "gpt-sovits", "resemblyzer",
+    "soundfile", "numpy"
+]

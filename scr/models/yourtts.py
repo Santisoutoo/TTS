@@ -5,7 +5,6 @@ import torch
 
 class YourTTS:
 
-
     def __init__(self):
 
         self.model_name = "tts_models/multilingual/multi-dataset/your_tts"

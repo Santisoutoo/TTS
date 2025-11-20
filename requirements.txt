@@ -19,6 +19,7 @@ pydub>=0.25.1
 # Metrics and evaluation
 resemblyzer>=0.1.3             # Speaker similarity embeddings para clonación de voz
 scikit-learn>=1.2.0            # Métricas adicionales
+pandas>=1.5.0                  # Análisis y comparación de datos
 
 # Utilities
 tqdm>=4.65.0

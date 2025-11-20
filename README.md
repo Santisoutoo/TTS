@@ -12,7 +12,6 @@ Este proyecto incluye dos modelos de la biblioteca Coqui TTS:
 
 1. **XTTS v2** (`tts_models/multilingual/multi-dataset/xtts_v2`)
    - Arquitectura Transformer multilingüe
-   - Soporte para 16 idiomas
    - Zero-shot voice cloning de alta calidad
 
 2. **YourTTS** (`tts_models/multilingual/multi-dataset/your_tts`)
@@ -113,7 +112,7 @@ Para cambiar el audio de referencia, texto o idioma, modifica las variables en e
 ```makefile
 AUDIO_REF := inputs/tu_audio.wav
 TEXT := "Tu texto aquí"
-LANGUAGE := es  # Cambia el idioma (en, es, fr, etc.)
+LANGUAGE := es
 ```
 
 
@@ -232,17 +231,17 @@ Para obtener los mejores resultados en la clonación de voz:
 
 ### Ejemplos de buenos audios de referencia
 
-✅ Grabación de estudio o en ambiente silencioso
-✅ Voz clara y bien articulada
-✅ Sin música de fondo
-✅ Sin reverberación excesiva
+- ✅ Grabación de estudio o en ambiente silencioso
+- ✅ Voz clara y bien articulada
+- ✅ Sin música de fondo
+- ✅ Sin reverberación excesiva
 
 ### Ejemplos de audios problemáticos
 
-❌ Audio con mucho ruido de fondo
-❌ Múltiples personas hablando
-❌ Audio muy corto (< 2 segundos)
-❌ Audio muy distorsionado o comprimido
+- ❌ Audio con mucho ruido de fondo
+- ❌ Múltiples personas hablando
+- ❌ Audio muy corto (< 2 segundos)
+- ❌ Audio muy distorsionado o comprimido
 
 ## Workflow Completo de Ejemplo
 
@@ -289,41 +288,6 @@ python evaluate_models.py \
   --models outputs/xtts/xtts_output.wav
 ```
 
-## Solución de Problemas
-
-### Error: "CUDA not available"
-
-Este mensaje es normal si no tienes una GPU NVIDIA. Los modelos funcionarán en CPU, aunque más lento. No es un error crítico.
-
-### Error: "Out of memory"
-
-Si te quedas sin memoria RAM:
-- Cierra otras aplicaciones
-- Reduce el tamaño del audio de referencia
-- Usa textos más cortos
-
-### Los modelos se descargan muy lento
-
-La primera vez que ejecutas cada modelo, se descargan automáticamente (total ~2.5GB). Esto puede tardar según tu conexión. Los modelos se cachean localmente para usos futuros.
-
-### Audio de salida de mala calidad
-
-Posibles causas:
-- Audio de referencia con mucho ruido → Usa un audio más limpio
-- Audio de referencia muy corto → Usa al menos 3-5 segundos
-- Idioma no soportado bien → Prueba con inglés que tiene mejor soporte
-
-### Docker: Error de espacio en disco
-
-Las imágenes Docker para este proyecto son grandes (~7-8GB). Si te quedas sin espacio:
-
-```bash
-# Limpiar Docker completamente
-docker system prune -a --volumes
-
-# Reconstruir la imagen
-docker build -t tts-project .
-```
 
 ### Problemas de dependencias
 
@@ -340,25 +304,15 @@ pip install --no-cache-dir -r requirements.txt
 
 ## Documentación Adicional
 
-- **[docs/memoria.md](docs/memoria.md)**: Informe técnico completo con detalles de implementación, metodología y explicación profunda de las métricas
+- **[docs/informe.pdf](docs/informe.pdf)**: Informe técnico completo con detalles de implementación, metodología y explicación de las métricas
 - **[docs/metricas_guia.md](docs/metricas_guia.md)**: Guía rápida de interpretación de métricas
-
+- **[docs/resultados.md](docs/resultados.md.md)**: Resultados similitud
 ## Contribuciones y Atribuciones
 
 ### Audios de Referencia
 
 - Audio: [Plane Flight Safety Announcement (part 1).wav](https://freesound.org/s/497189/) por ajwphotographic, usado bajo [Licencia Creative Commons Attribution 3.0](https://creativecommons.org/licenses/by/3.0/)
 
-### Bibliotecas Utilizadas
-
-- [Coqui TTS](https://github.com/coqui-ai/TTS) - Framework de síntesis de voz
-- [Resemblyzer](https://github.com/resemble-ai/Resemblyzer) - Embeddings de voz para verificación de hablante
-- [PyTorch](https://pytorch.org/) - Framework de deep learning
-
 ## Licencia
 
 Este proyecto es con fines académicos exclusivamente.
-
----
-
-**Fecha de última actualización:** Noviembre 2025

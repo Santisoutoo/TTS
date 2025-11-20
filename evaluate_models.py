@@ -1,5 +1,5 @@
 """
-Script para evaluar y comparar modelos TTS usando múltiples métricas
+Script para evaluar y comparar modelos TTS usando speaker similarity
 Uso:
     python evaluate_models.py --reference data/reference.wav --models outputs/xtts outputs/yourtts
 """
@@ -7,7 +7,7 @@ Uso:
 import argparse
 import json
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict
 import pandas as pd
 from scr.metrics import TTSMetrics
 
@@ -91,24 +91,15 @@ def compare_models(reference_path: Path,
         comparison_data.append({
             'Model': result.get('model_name', 'Unknown'),
             'Speaker Similarity': result.get('speaker_similarity'),
-            'MCD (dB)': result.get('mcd'),
-            'Spectral Convergence': result.get('spectral_convergence'),
-            'SNR (dB)': result.get('snr'),
-            'Mel Correlation': result.get('mel_correlation'),
-            'Mel MSE': result.get('mel_mse'),
-            'Duration Ratio': result.get('duration_ratio'),
-            'Pitch Difference (Hz)': result.get('pitch_difference')
         })
 
     df = pd.DataFrame(comparison_data)
 
-    # Guardar comparación
     if output_dir:
         comparison_file = output_dir / "comparison.csv"
         df.to_csv(comparison_file, index=False)
         print(f"\n✓ Comparación guardada en: {comparison_file}")
 
-        # Guardar comparación JSON completa
         json_file = output_dir / "comparison_full.json"
         with open(json_file, 'w', encoding='utf-8') as f:
             json.dump(all_results, f, indent=2, ensure_ascii=False)
@@ -127,7 +118,7 @@ def print_comparison_table(df: pd.DataFrame):
     print("\n" + "="*70)
     print("TABLA COMPARATIVA DE MODELOS")
     print("="*70)
-    print("\nMétricas principales (valores ideales entre paréntesis):\n")
+    print("\nSpeaker Similarity:\n")
 
     # Formatear tabla
     pd.set_option('display.max_columns', None)
@@ -139,10 +130,6 @@ def print_comparison_table(df: pd.DataFrame):
     print("\n" + "-"*70)
     print("Interpretación:")
     print("  • Speaker Similarity: >0.80 excelente, >0.70 bueno")
-    print("  • MCD: <6.0 excelente, <8.0 bueno")
-    print("  • Mel Correlation: >0.90 excelente, >0.85 bueno")
-    print("  • SNR: >20 dB excelente, >15 dB bueno")
-    print("  • Duration Ratio: ~1.0 ideal")
     print("="*70 + "\n")
 
     # Determinar mejor modelo por métrica
@@ -151,9 +138,6 @@ def print_comparison_table(df: pd.DataFrame):
 
     metrics_to_compare = {
         'Speaker Similarity': ('max', 'Mayor es mejor'),
-        'MCD (dB)': ('min', 'Menor es mejor'),
-        'Mel Correlation': ('max', 'Mayor es mejor'),
-        'SNR (dB)': ('max', 'Mayor es mejor')
     }
 
     for metric, (comparison, description) in metrics_to_compare.items():
@@ -175,7 +159,7 @@ def print_comparison_table(df: pd.DataFrame):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Evalúa y compara modelos TTS usando métricas objetivas"
+        description="Evalúa y compara modelos TTS usando speaker similarity"
     )
 
     parser.add_argument(

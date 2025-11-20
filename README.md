@@ -68,94 +68,54 @@ TTS/
 - Los modelos pre-entrenados ocupan ~2.5GB
 - Las dependencias ocupan ~3GB
 
-## Instalación
 
-### Opción 1: Instalación Local (Recomendada para desarrollo)
-
-1. **Clonar el repositorio**
-   ```bash
-   git clone <url-del-repo>
-   cd TTS
-   ```
-
-2. **Crear entorno virtual**
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # Linux/Mac
-   # o en Windows:
-   # .venv\Scripts\activate
-   ```
-
-3. **Instalar dependencias**
-   ```bash
-   pip install --upgrade pip
-   pip install -r requirements.txt
-   ```
-
-4. **Verificar instalación**
-   ```bash
-   python -c "from TTS.api import TTS; print('TTS instalado correctamente')"
-   ```
-
-### Opción 2: Usando Docker
-
-1. **Construir la imagen Docker**
-   ```bash
-   docker build -t tts-project .
-   ```
-
-   **Nota:** La imagen es pesada (~7-8GB). Asegúrate de tener suficiente espacio en disco.
-
-2. **Ejecutar contenedor interactivo**
-   ```bash
-   docker run -it --rm \
-     -v $(pwd):/workspace \
-     tts-project bash
-   ```
 
 ## Guía de Uso
 
 ### 1. Generar Audio Sintético
 
-El script `main.py` permite generar audio sintético usando cualquiera de los dos modelos:
+Los modelos se ejecutan usando los comandos make definidos en el Makefile. Esto simplifica la ejecución y maneja automáticamente la configuración de Docker.
 
-#### Uso básico con XTTS v2
+#### Construir la imagen Docker
 
-```bash
-python main.py \
-  --model xtts \
-  --audio inputs/inference_voice_plane_announcement.wav \
-  --text "Hi, this is captain Santiago speaking, we will be landing soon" \
-  --language en
-```
-
-#### Uso básico con YourTTS
+Antes de ejecutar los modelos por primera vez:
 
 ```bash
-python main.py \
-  --model yourtts \
-  --audio inputs/inference_voice_plane_announcement.wav \
-  --text "Hi, this is captain Santiago speaking, we will be landing soon" \
-  --language en
+make build
 ```
 
-#### Parámetros disponibles
-
-- `--model`: Modelo a utilizar (`xtts` o `yourtts`) - **Requerido**
-- `--audio`: Ruta al archivo de audio de referencia para clonación - **Requerido**
-- `--text`: Texto a sintetizar (opcional, usa texto por defecto si no se especifica)
-- `--language`: Código de idioma (default: `en`)
-  - Idiomas soportados: `en`, `es`, `fr`, `de`, `it`, `pt`, `pl`, `tr`, `ru`, `nl`, `cs`, `ar`, `zh-cn`, `ja`, `ko`, `hu`
-
-#### Ejemplo en español
+#### Ejecutar XTTS v2
 
 ```bash
-python main.py \
-  --model xtts \
-  --audio inputs/mi_voz.wav \
-  --text "Hola, este es un ejemplo de clonación de voz en español" \
-  --language es
+make run-xtts
 ```
+
+Este comando ejecuta XTTS v2 con los parámetros por defecto definidos en el Makefile.
+
+#### Ejecutar YourTTS
+
+```bash
+make run-yourtts
+```
+
+#### Ejecutar ambos modelos
+
+Para ejecutar ambos modelos secuencialmente:
+
+```bash
+make run-all
+```
+
+#### Personalizar parámetros
+
+Para cambiar el audio de referencia, texto o idioma, modifica las variables en el Makefile:
+
+```makefile
+AUDIO_REF := inputs/tu_audio.wav
+TEXT := "Tu texto aquí"
+LANGUAGE := es  # Cambia el idioma (en, es, fr, etc.)
+```
+
 
 #### Salida
 
@@ -163,40 +123,11 @@ Los audios generados se guardarán en:
 - `outputs/xtts/xtts_output.wav` para XTTS v2
 - `outputs/yourtts/yourtts_output.wav` para YourTTS
 
-### 2. Evaluar Similitud de Voz (Speaker Similarity)
+### 2. Evaluar y Comparar Modelos (Métricas)
 
-#### Evaluar un solo audio
+Una vez generados los audios sintéticos, usa el script `evaluate_models.py` para calcular métricas de similitud y comparar el desempeño de los modelos.
 
-Para evaluar la similitud entre un audio de referencia y un audio sintético:
-
-```bash
-python -m scr.metrics.metrics \
-  --original inputs/inference_voice_plane_announcement.wav \
-  --synthetic outputs/xtts/xtts_output.wav
-```
-
-**Salida esperada:**
-```
-============================================================
-EVALUACIÓN DE SPEAKER SIMILARITY
-============================================================
-Audio original: inputs/inference_voice_plane_announcement.wav
-Audio sintético: outputs/xtts/xtts_output.wav
-
-Cargando VoiceEncoder de Resemblyzer...
-Calculando Speaker Similarity (Resemblyzer)...
-   Speaker Similarity: 0.8234
-
-============================================================
-RESUMEN
-============================================================
-Speaker Similarity: 0.8234 (objetivo: >0.8)
-============================================================
-```
-
-#### Comparar múltiples modelos
-
-Para comparar XTTS v2 y YourTTS automáticamente:
+#### Comparar XTTS v2 y YourTTS
 
 ```bash
 python evaluate_models.py \
@@ -204,13 +135,21 @@ python evaluate_models.py \
   --models outputs/xtts outputs/yourtts
 ```
 
-**Parámetros:**
+Este comando:
+1. Calcula la métrica **Speaker Similarity** para cada modelo
+2. Genera una tabla comparativa
+3. Guarda los resultados en archivos JSON y CSV
+
+#### Parámetros
+
 - `--reference`: Audio de referencia original - **Requerido**
-- `--models`: Lista de rutas a directorios con audios sintéticos o archivos .wav específicos
+- `--models`: Lista de rutas a directorios con audios sintéticos o archivos .wav específicos - **Requerido**
 - `--output-dir`: Directorio donde guardar resultados (default: `outputs/comparisons`)
 - `--quiet`: Modo silencioso (no imprime detalles durante evaluación)
 
-**Ejemplo especificando archivos específicos:**
+#### Ejemplos adicionales
+
+**Comparar archivos específicos:**
 
 ```bash
 python evaluate_models.py \
@@ -218,7 +157,16 @@ python evaluate_models.py \
   --models outputs/xtts/xtts_output.wav outputs/yourtts/yourtts_output.wav
 ```
 
-#### Salida del script de comparación
+**Cambiar directorio de salida:**
+
+```bash
+python evaluate_models.py \
+  --reference inputs/reference.wav \
+  --models outputs/xtts outputs/yourtts \
+  --output-dir results/experiment_1
+```
+
+#### Salida del script
 
 El script genera:
 
@@ -301,46 +249,44 @@ Para obtener los mejores resultados en la clonación de voz:
 ### Ejemplo 1: Comparar dos modelos con el mismo audio
 
 ```bash
-# Paso 1: Generar audio con XTTS v2
-python main.py \
-  --model xtts \
-  --audio inputs/mi_voz.wav \
-  --text "Hello, this is a test of voice cloning" \
-  --language en
+# Paso 1: Construir la imagen Docker (solo la primera vez)
+make build
 
-# Paso 2: Generar audio con YourTTS
-python main.py \
-  --model yourtts \
-  --audio inputs/mi_voz.wav \
-  --text "Hello, this is a test of voice cloning" \
-  --language en
+# Paso 2: Configurar parámetros en el Makefile (opcional)
+# Edita las variables AUDIO_REF, TEXT, y LANGUAGE en el Makefile
 
-# Paso 3: Comparar ambos modelos
+# Paso 3: Generar audios con ambos modelos
+make run-all
+
+# Paso 4: Evaluar y comparar resultados
+python evaluate_models.py \
+  --reference inputs/inference_voice_plane_announcement.wav \
+  --models outputs/xtts outputs/yourtts
+```
+
+### Ejemplo 2: Generar y evaluar con audio personalizado
+
+```bash
+# Paso 1: Ejecutar con parámetros personalizados
+make run-xtts AUDIO_REF=inputs/mi_voz.wav TEXT="Hola mundo" LANGUAGE=es
+make run-yourtts AUDIO_REF=inputs/mi_voz.wav TEXT="Hola mundo" LANGUAGE=es
+
+# Paso 2: Evaluar resultados
 python evaluate_models.py \
   --reference inputs/mi_voz.wav \
   --models outputs/xtts outputs/yourtts
 ```
 
-### Ejemplo 2: Probar diferentes textos con el mismo modelo
+### Ejemplo 3: Probar solo un modelo y ver métricas
 
 ```bash
-# Texto 1
-python main.py --model xtts --audio inputs/ref.wav \
-  --text "The quick brown fox jumps over the lazy dog" --language en
+# Generar con XTTS v2
+make run-xtts
 
-# Renombrar salida
-mv outputs/xtts/xtts_output.wav outputs/xtts/xtts_output_1.wav
-
-# Texto 2
-python main.py --model xtts --audio inputs/ref.wav \
-  --text "To be or not to be, that is the question" --language en
-
-# Renombrar salida
-mv outputs/xtts/xtts_output.wav outputs/xtts/xtts_output_2.wav
-
-# Evaluar ambos
-python -m scr.metrics.metrics --original inputs/ref.wav --synthetic outputs/xtts/xtts_output_1.wav
-python -m scr.metrics.metrics --original inputs/ref.wav --synthetic outputs/xtts/xtts_output_2.wav
+# Evaluar solo este modelo
+python evaluate_models.py \
+  --reference inputs/inference_voice_plane_announcement.wav \
+  --models outputs/xtts/xtts_output.wav
 ```
 
 ## Solución de Problemas

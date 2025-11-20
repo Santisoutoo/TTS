@@ -1,7 +1,7 @@
 IMAGE := tts-project
 PROJECT_DIR := $(shell pwd)
-AUDIO_REF := inputs/inference_voice_poeta.wav
-TEXT := "Hi, this is captain Santiago speaking, we will be landing soon"
+AUDIO_REF := inputs/inference_voice_plane_announcement.wav
+TEXT := "Ladies and gentlemen, this is your captain speaking. We’ll be commencing our descent shortly. The weather in Santiago is reported to be partly cloudy with a temperature of around 20 degrees. We expect a smooth landing. Thank you for flying with us."
 LANGUAGE := en
 
 # Build Docker image
